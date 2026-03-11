@@ -1,6 +1,7 @@
+import os
 
 class Room():
-    def __init__(self, entered_dir, end_pos=(-1,-1), width=3, height=3, player_display="🤠", floor_display="🌾", end_display="🚪"):
+    def __init__(self, entered_dir, end_pos=(-1,-1), width=6, height=6, player_display="🤠", floor_display="🌾", end_display="🚪"):
         """create instance variables on intization"""
         # Entered_dir in left, right, up, or down
         # end_dir is by default -1,-1 which will be the oppsite of the player location
@@ -21,11 +22,12 @@ class Room():
         return self.__player_pos
     @player_pos.setter
     def player_pos(self, new_pos):
-        if abs(new_pos[0] - self.__player_pos[0]) > 1 or abs(new_pos[1] - self.__player_pos[1]):
+        if abs(new_pos[0] - self.__player_pos[0]) > 1 or abs(new_pos[1] - self.__player_pos[1]) > 1:
             print("Player can only move one spot")
-        elif new_pos[0] > self.__width-1 or new_pos[1] > self.__width-1:
+        elif not self.check_cords(new_pos):
             print("Cannot move out of bounds")
         else:
+            print("should move")
             self.__player_pos = new_pos
             self.__room = self.make_room()
     
@@ -90,7 +92,8 @@ class Room():
 
 
     def display(self):
-        """Displays the room"""
+        """Displays the room and clears"""
+        os.system("cls")
         for row in range(len(self.__room)):
             for colomn in self.__room[row]:
                 if colomn == 0:
@@ -143,7 +146,7 @@ class Room():
     
     def check_cords(self, cords):
         """Checks if the entered cords are valid entered in ()"""
-        if len(self.room) >= cords[1] and len(self.room[1]) >= cords[0]:
+        if len(self.room)-1 >= cords[1] >= 0 and len(self.room[1])-1 >= cords[0] >= 0:
             return True
         else:
             return False
@@ -165,3 +168,22 @@ class Room():
         else:
             return end_pos
 
+    def process_player_cmd(self, cmd):
+        match cmd:
+            case "right":
+                next_pos = (self.__player_pos[0]+1, self.__player_pos[1])
+                if self.check_cords(next_pos):
+                    self.player_pos = next_pos
+            case "left":
+                next_pos = (self.__player_pos[0]-1, self.__player_pos[1])
+                if self.check_cords(next_pos):
+                    self.player_pos = next_pos
+            case "down":
+                next_pos = (self.__player_pos[0], self.__player_pos[1]+1)
+                if self.check_cords(next_pos):
+                    self.player_pos = next_pos
+            case "up":
+                next_pos = (self.__player_pos[0], self.__player_pos[1]-1)
+                print(f"up trying to move {next_pos}")
+                if self.check_cords(next_pos):
+                    self.player_pos = next_pos
