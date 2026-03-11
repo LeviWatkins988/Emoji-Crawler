@@ -29,4 +29,4 @@ This project uses the following libraries and assets.
 ---
 
 ## Tutorials, Documentation, and Code Referenced
-- [random library documentation][(https://docs.python.org/3/library/random.html) by Python]
+- [The Random Library Documentation](https://docs.python.org/3/library/random.html) by Python Software Foundation
