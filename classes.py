@@ -1,15 +1,65 @@
 import os
 import random
 
+class Entity():
+    def __init__(self, health, melee_dmg, emoji):
+        self.__health = health
+        self.__melee_dmg = melee_dmg
+        self.__emoji = emoji
+    
+    @property
+    def health(self):
+        return self.__health
+    @health.setter
+    def health(self, new_health):
+        if type(new_health) == int:
+            if new_health < 0:
+                print("Health has to be positive, setting health to zero")
+                self.__health = 0
+            else:
+                self.__health = 0
+        else:
+            print("Health has to be int")
+    
+    @property
+    def emoji(self):
+        return self.__emoji
+    @emoji.setter
+    def emoji(self, new_emoji):
+        if type(new_emoji) == str:
+            self.__emoji = new_emoji
+        else:
+            print("New emoji has to be a string")
+
+    @property
+    def melee_dmg(self):
+        return self.__melee_dmg
+    @melee_dmg.setter
+    def melee_dmg(self, new_dmg):
+        if type(new_dmg) == int:
+            if new_dmg < 0:
+                print("Dmg has to be positive, setting dmg to 0")
+            else:
+                self.__melee_dmg = new_dmg
+        else:
+            print("Dmg has to be int")
+
+
+class Player(Entity):
+    def __init__(self, health, melee_dmg, emoji):
+        super().__init__(health, melee_dmg, emoji)
+    
+
+
 class Room():
-    def __init__(self, entered_dir, end_pos=(-1,-1), width=6, height=6, player_display="🤠", floor_display="🌾", end_display="🚪"):
+    def __init__(self, entered_dir, player: Entity, end_pos=(-1,-1), width=6, height=6, floor_display="🌾", end_display="🚪"):
         """create instance variables on intization"""
         # Entered_dir in left, right, up, or down
         # end_dir is by default -1,-1 which will be the oppsite of the player location
         self.__entered_dir = entered_dir
         self.__height = height
         self.__width = width
-        self.__player_display = player_display
+        self.__player = player
         self.__end_display = end_display
         self.__end_pos = self.find_intial_end_position(end_pos)
         self.__floor_display = floor_display
@@ -99,8 +149,8 @@ class Room():
             for colomn in self.__room[row]:
                 if colomn == 0:
                     print(self.__floor_display, end="")
-                elif colomn == 1:
-                    print(self.__player_display, end="")
+                elif colomn == self.__player:
+                    print(self.__player.emoji, end="")
                 elif colomn == 2:
                     print(self.__end_display, end="")
             print("")
@@ -112,7 +162,7 @@ class Room():
             row = []
             for x in range(self.__width):
                 if (x, y) == self.__player_pos:
-                    row.append(1)
+                    row.append(self.__player)
                 elif(x, y) == self.__end_pos:
                     row.append(2)
                 else:
@@ -185,17 +235,26 @@ class Room():
                 if self.check_cords(next_pos):
                     if self.see_cords(next_pos) == 0:
                         self.player_pos = next_pos
+                    elif self.see_cords(next_pos) == 2:
+                        print("should end")
+                        return "end"
             case "down":
                 next_pos = (self.__player_pos[0], self.__player_pos[1]+1)
                 if self.check_cords(next_pos):
                     if self.see_cords(next_pos) == 0:
                         self.player_pos = next_pos
+                    elif self.see_cords(next_pos) == 2:
+                        print("should end")
+                        return "end"
             case "up":
                 next_pos = (self.__player_pos[0], self.__player_pos[1]-1)
                 print(f"up trying to move {next_pos}")
                 if self.check_cords(next_pos):
                     if self.see_cords(next_pos) == 0:
                         self.player_pos = next_pos
+                    elif self.see_cords(next_pos) == 2:
+                        print("should end")
+                        return "end"
     
     def see_cords(self, cords):
         """Method to check what is in the inputed cords"""
@@ -208,44 +267,9 @@ class Room():
             print("Out of bounds: returning -1")
             return -1
 
-
-class entity():
-    def __init__(self, health, melee_dmg):
-        self.__health = health
-        self.__melee_dmg = melee_dmg
-    
-    @property
-    def health(self):
-        return self.__health
-    @health.setter
-    def health(self, new_health):
-        if type(new_health) == int:
-            if new_health < 0:
-                print("Health has to be positive, setting health to zero")
-                self.__health = 0
-            else:
-                self.__health = 0
-        else:
-            print("Health has to be int")
-    
-    @property
-    def melee_dmg(self):
-        return self.__melee_dmg
-    @melee_dmg.setter
-    def melee_dmg(self, new_dmg):
-        if type(new_dmg) == int:
-            if new_dmg < 0:
-                print("Dmg has to be positive, setting dmg to 0")
-            else:
-                self.__melee_dmg = new_dmg
-        else:
-            print("Dmg has to be int")
-        
-        
-
-
-
-r = Room("up")
+"""
+p = Player(100, 20, "🤠")
+r = Room("up", p)
 r.display()
 print(r.see_cords((2,6)))
-
+"""
