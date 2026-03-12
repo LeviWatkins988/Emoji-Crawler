@@ -209,6 +209,42 @@ class Room():
             return -1
 
 
+class entity():
+    def __init__(self, health, melee_dmg):
+        self.__health = health
+        self.__melee_dmg = melee_dmg
+    
+    @property
+    def health(self):
+        return self.__health
+    @health.setter
+    def health(self, new_health):
+        if type(new_health) == int:
+            if new_health < 0:
+                print("Health has to be positive, setting health to zero")
+                self.__health = 0
+            else:
+                self.__health = 0
+        else:
+            print("Health has to be int")
+    
+    @property
+    def melee_dmg(self):
+        return self.__melee_dmg
+    @melee_dmg.setter
+    def melee_dmg(self, new_dmg):
+        if type(new_dmg) == int:
+            if new_dmg < 0:
+                print("Dmg has to be positive, setting dmg to 0")
+            else:
+                self.__melee_dmg = new_dmg
+        else:
+            print("Dmg has to be int")
+        
+        
+
+
+
 r = Room("up")
 r.display()
 print(r.see_cords((2,6)))
