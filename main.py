@@ -41,7 +41,9 @@ def main():
         print(room.player_pos)
         user_inp = get_user_input()
         print(f"user_inp: {user_inp}")
-        room.process_player_cmd(user_inp)
+        room_cmd = room.process_player_cmd(user_inp)
+        if room_cmd == "end":
+            room = c.Room("down", width=(room.width+r.randint(0,2)), height=(room.height+r.randint(0,2)))
         time.sleep(.1)
 
 

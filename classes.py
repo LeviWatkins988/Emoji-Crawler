@@ -1,4 +1,5 @@
 import os
+import random
 
 class Room():
     def __init__(self, entered_dir, end_pos=(-1,-1), width=6, height=6, player_display="🤠", floor_display="🌾", end_display="🚪"):
@@ -169,21 +170,46 @@ class Room():
             return end_pos
 
     def process_player_cmd(self, cmd):
+        """Updates the room to match the player cmd"""
         match cmd:
             case "right":
                 next_pos = (self.__player_pos[0]+1, self.__player_pos[1])
                 if self.check_cords(next_pos):
-                    self.player_pos = next_pos
+                    if self.see_cords(next_pos) == 0:
+                        self.player_pos = next_pos
+                    elif self.see_cords(next_pos) == 2:
+                        print("should end")
+                        return "end"
             case "left":
                 next_pos = (self.__player_pos[0]-1, self.__player_pos[1])
                 if self.check_cords(next_pos):
-                    self.player_pos = next_pos
+                    if self.see_cords(next_pos) == 0:
+                        self.player_pos = next_pos
             case "down":
                 next_pos = (self.__player_pos[0], self.__player_pos[1]+1)
                 if self.check_cords(next_pos):
-                    self.player_pos = next_pos
+                    if self.see_cords(next_pos) == 0:
+                        self.player_pos = next_pos
             case "up":
                 next_pos = (self.__player_pos[0], self.__player_pos[1]-1)
                 print(f"up trying to move {next_pos}")
                 if self.check_cords(next_pos):
-                    self.player_pos = next_pos
+                    if self.see_cords(next_pos) == 0:
+                        self.player_pos = next_pos
+    
+    def see_cords(self, cords):
+        """Method to check what is in the inputed cords"""
+        if self.check_cords(cords):
+            for y in range(len(self.__room)):
+                for x in range(len(self.__room[y])):
+                    if (x, y) == cords:
+                        return self.__room[y][x]
+        else:
+            print("Out of bounds: returning -1")
+            return -1
+
+
+r = Room("up")
+r.display()
+print(r.see_cords((2,6)))
+
