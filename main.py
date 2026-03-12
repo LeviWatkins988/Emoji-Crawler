@@ -1,3 +1,12 @@
+"""
+Emoji Crawler
+By Levi Watkins
+3/11/2026
+
+
+Program to play a dungeon crawler type of game. 
+"""
+
 import classes as c
 import random as r
 import keyboard
