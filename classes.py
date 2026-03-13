@@ -48,6 +48,11 @@ class Entity():
 class Player(Entity):
     def __init__(self, health, melee_dmg, emoji):
         super().__init__(health, melee_dmg, emoji)
+
+class Ogre(Entity):
+    def __init__(self, health, melee_dmg, emoji):
+        super().__init__(health, melee_dmg, emoji)
+
     
 
 
@@ -155,8 +160,8 @@ class Room():
                     print(self.__end_display, end="")
             print("")
 
-    def make_room(self):
-        """makes room. current key: 0=floor, 1=player, 2=end"""
+    def make_room(self, Number_Ogres=0):
+        """makes room. current key: 0=floor, 2=end"""
         bin_room = []
         for y in range(self.__height):
             row = []
@@ -230,6 +235,10 @@ class Room():
                     elif self.see_cords(next_pos) == 2:
                         print("should end")
                         return "end"
+                    elif type(self.see_cords(next_pos)) == Entity:
+                        self.see_cords(next_pos).health -= self.__player.melee_dmg
+                        if self.see_cords(next_pos).health == 0:
+                            self.room[next_pos[1]][next_pos[0]] = 0
             case "left":
                 next_pos = (self.__player_pos[0]-1, self.__player_pos[1])
                 if self.check_cords(next_pos):

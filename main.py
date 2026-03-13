@@ -11,7 +11,7 @@ import classes as c
 import random as r
 import keyboard
 import time
-
+"""👹"""
 
 def display_tutorial():
     """Displays the tutorial information then waits for input"""
