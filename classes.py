@@ -7,6 +7,7 @@ class Entity():
         self.__melee_dmg = melee_dmg
         self.__emoji = emoji
     
+    
     @property
     def health(self):
         return self.__health
@@ -48,6 +49,9 @@ class Entity():
 class Player(Entity):
     def __init__(self, health, melee_dmg, emoji):
         super().__init__(health, melee_dmg, emoji)
+    
+    def __str__(self):
+        return f"Your Health: {self.__health}"
 
 class Ogre(Entity):
     def __init__(self, health, melee_dmg, emoji):
@@ -57,7 +61,7 @@ class Ogre(Entity):
 
 
 class Room():
-    def __init__(self, entered_dir, player: Entity, end_pos=(-1,-1), width=6, height=6, floor_display="🌾", end_display="🚪", number_of_ogres=1):
+    def __init__(self, entered_dir, player: Entity, end_pos=(-1,-1), width=6, height=6, floor_display="🌾", end_display="🚪", number_of_ogres=2):
         """create instance variables on intization"""
         # Entered_dir in left, right, up, or down
         # end_dir is by default -1,-1 which will be the oppsite of the player location
@@ -163,11 +167,13 @@ class Room():
                 elif colomn == 2:
                     print(self.__end_display, end="")
             print("")
+        print(self.__ogre_cords)
+        #print(self.__player)
 
     def create_ogre_cords(self, number, distance):
         list_of_cords = []
-        while len(list_of_cords) < distance:
-            (x, y) = (random.randint(0, self.__width), random.randint(0, self.__height))
+        while len(list_of_cords) < number:
+            (x, y) = (random.randint(0, self.__width-1), random.randint(0, self.__height-1))
             if self.close_to_player((x,y), distance) and (x, y) != self.__end_pos:
                 list_of_cords.append((x,y))
         return list_of_cords
@@ -296,16 +302,32 @@ class Room():
     
     def close_to_player(self, cord_to_check, distance):
         """Returns true or false based on weather the cord_to_check is with in distance to player"""
-        if abs(cord_to_check[0] - self.player_pos[0]) > distance and abs(cord_to_check[1] - self.player_pos[1]) > distance:
-            return False
-        else:
+        if abs(cord_to_check[0] - self.player_pos[0]) > distance or abs(cord_to_check[1] - self.player_pos[1]) > distance:
             return True
+        else:
+            return False
     
     def calc_player_dmg(self, next_pos):
+        """Damages the entity in the next_pos using player dmg"""
         self.room[next_pos[1]][next_pos[0]].health = self.room[next_pos[1]][next_pos[0]].health - self.__player.melee_dmg
         if self.room[next_pos[1]][next_pos[0]].health == 0:
             self.room[next_pos[1]][next_pos[0]] = 0
             self.__ogre_cords.remove(next_pos)
+    
+    def enemy_turn(self):
+        for ogre_cord in self.__ogre_cords:
+            if ogre_cord[0] > self.__player_pos[0]:
+                if self.see_cords((ogre_cord[0]-1, ogre_cord[1])) == 0:
+                    self.__ogre_cords.append((ogre_cord[0]-1, ogre_cord[1]))
+                    self.__ogre_cords.remove(ogre_cord)
+                elif type(self.see_cords((ogre_cord[0]-1, ogre_cord[1]))) == Player:
+                    pass
+            elif ogre_cord[0] < self.__player_pos[0]:
+                if self.see_cords((ogre_cord[0]+1, ogre_cord[1])) == 0:
+                    self.__ogre_cords.append((ogre_cord[0]-1, ogre_cord[1]))
+                    self.__ogre_cords.remove(ogre_cord)
+
+    
 
 """
 p = Player(100, 20, "🤠")

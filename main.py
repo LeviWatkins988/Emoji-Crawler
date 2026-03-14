@@ -11,7 +11,6 @@ import classes as c
 import random as r
 import keyboard
 import time
-"""👹"""
 
 def display_tutorial():
     """Displays the tutorial information then waits for input"""
@@ -47,7 +46,7 @@ def main():
         print(f"user_inp: {user_inp}")
         room_cmd = room.process_player_cmd(user_inp)
         if room_cmd == "end":
-            room = c.Room("down", player , width=(room.width+r.randint(0,2)), height=(room.height+r.randint(0,2)))
+            room = c.Room("down", player , width=(room.width+r.randint(0,2)), height=(room.height+r.randint(0,2)), number_of_ogres=((room.width * room.height)//18))
         time.sleep(.1)
 
 
