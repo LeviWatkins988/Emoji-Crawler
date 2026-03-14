@@ -37,12 +37,12 @@ def get_user_input():
 def main():
     """Code that gets run when main.py gets run"""
     display_tutorial()
-    player = c.Player(100, 50, "🤠")
+    player = c.Player(100, 20, "🤠")
     room = c.Room("down", player)
     while True:
         room.display()
-        #print(room.room)
-        #print(room.player_pos)
+        print(room.room)
+        print(room.player_pos)
         user_inp = get_user_input()
         print(f"user_inp: {user_inp}")
         room_cmd = room.process_player_cmd(user_inp)

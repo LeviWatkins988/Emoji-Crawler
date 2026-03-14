@@ -17,7 +17,7 @@ class Entity():
                 print("Health has to be positive, setting health to zero")
                 self.__health = 0
             else:
-                self.__health = 0
+                self.__health = new_health
         else:
             print("Health has to be int")
     
@@ -57,7 +57,7 @@ class Ogre(Entity):
 
 
 class Room():
-    def __init__(self, entered_dir, player: Entity, end_pos=(-1,-1), width=6, height=6, floor_display="🌾", end_display="🚪"):
+    def __init__(self, entered_dir, player: Entity, end_pos=(-1,-1), width=6, height=6, floor_display="🌾", end_display="🚪", number_of_ogres=1):
         """create instance variables on intization"""
         # Entered_dir in left, right, up, or down
         # end_dir is by default -1,-1 which will be the oppsite of the player location
@@ -69,7 +69,9 @@ class Room():
         self.__end_pos = self.find_intial_end_position(end_pos)
         self.__floor_display = floor_display
         self.__player_pos = self.find_intial_player_position()
+        self.__ogre_cords = self.create_ogre_cords(number_of_ogres, 3)
         self.__room = self.make_room()
+        
         
 
     #Player Pos
@@ -156,11 +158,21 @@ class Room():
                     print(self.__floor_display, end="")
                 elif colomn == self.__player:
                     print(self.__player.emoji, end="")
+                elif type(colomn) == Ogre:
+                    print(colomn.emoji, end="")
                 elif colomn == 2:
                     print(self.__end_display, end="")
             print("")
 
-    def make_room(self, Number_Ogres=0):
+    def create_ogre_cords(self, number, distance):
+        list_of_cords = []
+        while len(list_of_cords) < distance:
+            (x, y) = (random.randint(0, self.__width), random.randint(0, self.__height))
+            if self.close_to_player((x,y), distance) and (x, y) != self.__end_pos:
+                list_of_cords.append((x,y))
+        return list_of_cords
+
+    def make_room(self):
         """makes room. current key: 0=floor, 2=end"""
         bin_room = []
         for y in range(self.__height):
@@ -168,6 +180,8 @@ class Room():
             for x in range(self.__width):
                 if (x, y) == self.__player_pos:
                     row.append(self.__player)
+                elif (x,y) in self.__ogre_cords:
+                    row.append(Ogre(50, 10, "👹"))
                 elif(x, y) == self.__end_pos:
                     row.append(2)
                 else:
@@ -235,10 +249,8 @@ class Room():
                     elif self.see_cords(next_pos) == 2:
                         print("should end")
                         return "end"
-                    elif type(self.see_cords(next_pos)) == Entity:
-                        self.see_cords(next_pos).health -= self.__player.melee_dmg
-                        if self.see_cords(next_pos).health == 0:
-                            self.room[next_pos[1]][next_pos[0]] = 0
+                    elif type(self.see_cords(next_pos)) == Ogre:
+                        self.calc_player_dmg(next_pos)
             case "left":
                 next_pos = (self.__player_pos[0]-1, self.__player_pos[1])
                 if self.check_cords(next_pos):
@@ -247,6 +259,8 @@ class Room():
                     elif self.see_cords(next_pos) == 2:
                         print("should end")
                         return "end"
+                    elif type(self.see_cords(next_pos)) == Ogre:
+                        self.calc_player_dmg(next_pos)
             case "down":
                 next_pos = (self.__player_pos[0], self.__player_pos[1]+1)
                 if self.check_cords(next_pos):
@@ -255,6 +269,8 @@ class Room():
                     elif self.see_cords(next_pos) == 2:
                         print("should end")
                         return "end"
+                    elif type(self.see_cords(next_pos)) == Ogre:
+                        self.calc_player_dmg(next_pos)
             case "up":
                 next_pos = (self.__player_pos[0], self.__player_pos[1]-1)
                 print(f"up trying to move {next_pos}")
@@ -264,6 +280,8 @@ class Room():
                     elif self.see_cords(next_pos) == 2:
                         print("should end")
                         return "end"
+                    elif type(self.see_cords(next_pos)) == Ogre:
+                        self.calc_player_dmg(next_pos)
     
     def see_cords(self, cords):
         """Method to check what is in the inputed cords"""
@@ -275,6 +293,19 @@ class Room():
         else:
             print("Out of bounds: returning -1")
             return -1
+    
+    def close_to_player(self, cord_to_check, distance):
+        """Returns true or false based on weather the cord_to_check is with in distance to player"""
+        if abs(cord_to_check[0] - self.player_pos[0]) > distance and abs(cord_to_check[1] - self.player_pos[1]) > distance:
+            return False
+        else:
+            return True
+    
+    def calc_player_dmg(self, next_pos):
+        self.room[next_pos[1]][next_pos[0]].health = self.room[next_pos[1]][next_pos[0]].health - self.__player.melee_dmg
+        if self.room[next_pos[1]][next_pos[0]].health == 0:
+            self.room[next_pos[1]][next_pos[0]] = 0
+            self.__ogre_cords.remove(next_pos)
 
 """
 p = Player(100, 20, "🤠")
