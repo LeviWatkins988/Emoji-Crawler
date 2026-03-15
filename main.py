@@ -40,10 +40,10 @@ def main():
     room = c.Room("down", player)
     while True:
         room.display()
+        print(f"Player pos: {room.player_pos}")
         print(room.room)
-        print(room.player_pos)
         user_inp = get_user_input()
-        print(f"user_inp: {user_inp}")
+        #print(f"user_inp: {user_inp}")
         room_cmd = room.process_player_cmd(user_inp)
         if room_cmd == "end":
             room = c.Room("down", player , width=(room.width+r.randint(0,2)), height=(room.height+r.randint(0,2)), number_of_ogres=((room.width * room.height)//18))

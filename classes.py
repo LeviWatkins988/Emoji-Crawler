@@ -1,5 +1,6 @@
 import os
 import random
+import copy
 
 class Entity():
     def __init__(self, health, melee_dmg, emoji):
@@ -90,8 +91,9 @@ class Room():
             print("Cannot move out of bounds")
         else:
             print("should move")
+            self.move_to_valid_pos(self.__player_pos, new_pos)
             self.__player_pos = new_pos
-            self.__room = self.make_room()
+            #self.__room = self.make_room()
     
     #Height
     @property
@@ -155,7 +157,7 @@ class Room():
 
     def display(self):
         """Displays the room and clears"""
-        os.system("cls")
+        #os.system("cls")
         for row in range(len(self.__room)):
             for colomn in self.__room[row]:
                 if colomn == 0:
@@ -174,7 +176,7 @@ class Room():
         list_of_cords = []
         while len(list_of_cords) < number:
             (x, y) = (random.randint(0, self.__width-1), random.randint(0, self.__height-1))
-            if self.close_to_player((x,y), distance) and (x, y) != self.__end_pos:
+            if self.close_to_player((x,y), distance) and (x, y) != self.__end_pos and (x,y) not in list_of_cords:
                 list_of_cords.append((x,y))
         return list_of_cords
 
@@ -246,6 +248,9 @@ class Room():
 
     def process_player_cmd(self, cmd):
         """Updates the room to match the player cmd"""
+        print(f"player pos before moving {self.__player_pos}")
+        
+        print(f"player pos after moving {self.__player_pos}")
         match cmd:
             case "right":
                 next_pos = (self.__player_pos[0]+1, self.__player_pos[1])
@@ -253,7 +258,6 @@ class Room():
                     if self.see_cords(next_pos) == 0:
                         self.player_pos = next_pos
                     elif self.see_cords(next_pos) == 2:
-                        print("should end")
                         return "end"
                     elif type(self.see_cords(next_pos)) == Ogre:
                         self.calc_player_dmg(next_pos)
@@ -263,31 +267,29 @@ class Room():
                     if self.see_cords(next_pos) == 0:
                         self.player_pos = next_pos
                     elif self.see_cords(next_pos) == 2:
-                        print("should end")
                         return "end"
                     elif type(self.see_cords(next_pos)) == Ogre:
                         self.calc_player_dmg(next_pos)
             case "down":
                 next_pos = (self.__player_pos[0], self.__player_pos[1]+1)
                 if self.check_cords(next_pos):
-                    if self.see_cords(next_pos) == 0:
+                    if self.see_cords(next_pos) == 0 :
                         self.player_pos = next_pos
                     elif self.see_cords(next_pos) == 2:
-                        print("should end")
                         return "end"
                     elif type(self.see_cords(next_pos)) == Ogre:
                         self.calc_player_dmg(next_pos)
             case "up":
                 next_pos = (self.__player_pos[0], self.__player_pos[1]-1)
-                print(f"up trying to move {next_pos}")
                 if self.check_cords(next_pos):
                     if self.see_cords(next_pos) == 0:
                         self.player_pos = next_pos
                     elif self.see_cords(next_pos) == 2:
-                        print("should end")
                         return "end"
                     elif type(self.see_cords(next_pos)) == Ogre:
                         self.calc_player_dmg(next_pos)
+        self.ogre_turn()
+        
     
     def see_cords(self, cords):
         """Method to check what is in the inputed cords"""
@@ -314,21 +316,41 @@ class Room():
             self.room[next_pos[1]][next_pos[0]] = 0
             self.__ogre_cords.remove(next_pos)
     
-    def enemy_turn(self):
-        for ogre_cord in self.__ogre_cords:
-            if ogre_cord[0] > self.__player_pos[0]:
-                if self.see_cords((ogre_cord[0]-1, ogre_cord[1])) == 0:
-                    self.__ogre_cords.append((ogre_cord[0]-1, ogre_cord[1]))
-                    self.__ogre_cords.remove(ogre_cord)
-                elif type(self.see_cords((ogre_cord[0]-1, ogre_cord[1]))) == Player:
-                    pass
-            elif ogre_cord[0] < self.__player_pos[0]:
-                if self.see_cords((ogre_cord[0]+1, ogre_cord[1])) == 0:
-                    self.__ogre_cords.append((ogre_cord[0]-1, ogre_cord[1]))
-                    self.__ogre_cords.remove(ogre_cord)
-
+    def ogre_turn(self):
+        before_turn_cords = copy.deepcopy(self.__ogre_cords)
+        print(f"ogre cords before moving {self.__ogre_cords}")
+        for ogre in before_turn_cords:
+            if ogre[0] < self.player_pos[0] and self.see_cords((ogre[0]+1, ogre[1])) == 0:
+                self.__ogre_cords.append((ogre[0]+1, ogre[1]))
+                self.__ogre_cords.remove(ogre)
+                self.move_to_valid_pos(ogre, (ogre[0]+1, ogre[1]))
+            elif ogre[0] > self.player_pos[0] and self.see_cords((ogre[0]-1, ogre[1])) == 0:
+                self.__ogre_cords.append((ogre[0]-1, ogre[1]))
+                self.__ogre_cords.remove(ogre)
+                self.move_to_valid_pos(ogre, (ogre[0]-1, ogre[1]))
+            elif ogre[1] < self.player_pos[1] and self.see_cords((ogre[0], ogre[1]+1)) == 0:
+                self.__ogre_cords.append((ogre[0], ogre[1]+1))
+                self.__ogre_cords.remove(ogre)
+                self.move_to_valid_pos(ogre, (ogre[0], ogre[1]+1))
+            elif ogre[1] > self.player_pos[1] and self.see_cords((ogre[0], ogre[1]-1)) == 0:
+                self.__ogre_cords.append((ogre[0], ogre[1]-1))
+                self.__ogre_cords.remove(ogre)
+                self.move_to_valid_pos(ogre, (ogre[0], ogre[1]-1))
     
+    def move_to_valid_pos(self, current_pos, new_pos):
+        if self.check_cords(current_pos) and self.check_cords(new_pos):
+            if self.see_cords(new_pos) == 0:
+                print("should move")
+                self.__room[new_pos[1]][new_pos[0]] = self.__room[current_pos[1]][current_pos[0]]
+                self.__room[current_pos[1]][current_pos[0]] = 0
 
+
+
+
+before_turn_cords = [1, 2]
+
+for i in range(len(before_turn_cords)):
+    print(i)
 """
 p = Player(100, 20, "🤠")
 r = Room("up", p)
