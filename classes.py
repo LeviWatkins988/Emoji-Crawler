@@ -16,7 +16,6 @@ class Entity():
     def health(self, new_health):
         if type(new_health) == int:
             if new_health < 0:
-                print("Health has to be positive, setting health to zero")
                 self.__health = 0
             else:
                 self.__health = new_health
@@ -50,9 +49,14 @@ class Entity():
 class Player(Entity):
     def __init__(self, health, melee_dmg, emoji):
         super().__init__(health, melee_dmg, emoji)
+    """@property
+    def mana(self):
+        return self.__mana
+    @mana.setter
+    def mana(self, other: int):
+        if other >= 0:
+            self.__mana = other"""
     
-    def __str__(self):
-        return f"Your Health: {self.__health}"
 
 class Ogre(Entity):
     def __init__(self, health, melee_dmg, emoji):
@@ -157,7 +161,7 @@ class Room():
 
     def display(self):
         """Displays the room and clears"""
-        #os.system("cls")
+        os.system("cls")
         for row in range(len(self.__room)):
             for colomn in self.__room[row]:
                 if colomn == 0:
@@ -169,8 +173,8 @@ class Room():
                 elif colomn == 2:
                     print(self.__end_display, end="")
             print("")
-        print(self.__ogre_cords)
-        #print(self.__player)
+        print(f"Your health is: {self.__player.health}")
+        #print(f"Your mana is: {player.}")
 
     def create_ogre_cords(self, number, distance):
         list_of_cords = []
@@ -189,7 +193,7 @@ class Room():
                 if (x, y) == self.__player_pos:
                     row.append(self.__player)
                 elif (x,y) in self.__ogre_cords:
-                    row.append(Ogre(50, 10, "👹"))
+                    row.append(Ogre(40, 5, "👹"))
                 elif(x, y) == self.__end_pos:
                     row.append(2)
                 else:
@@ -248,9 +252,6 @@ class Room():
 
     def process_player_cmd(self, cmd):
         """Updates the room to match the player cmd"""
-        print(f"player pos before moving {self.__player_pos}")
-        
-        print(f"player pos after moving {self.__player_pos}")
         match cmd:
             case "right":
                 next_pos = (self.__player_pos[0]+1, self.__player_pos[1])
@@ -289,8 +290,27 @@ class Room():
                     elif type(self.see_cords(next_pos)) == Ogre:
                         self.calc_player_dmg(next_pos)
         self.ogre_turn()
-        
+        return self.determine_player_hurt()
     
+
+    def determine_player_hurt(self):
+        if type(self.see_cords((self.__player_pos[0]+1, self.__player_pos[1]))) == Ogre:
+            self.__player.health = self.__player.health - self.see_cords((self.__player_pos[0]+1, self.__player_pos[1])).melee_dmg
+            if self.__player.health == 0:
+                return "loss"
+        if type(self.see_cords((self.__player_pos[0]-1, self.__player_pos[1]))) == Ogre:
+            self.__player.health = self.__player.health - self.see_cords((self.__player_pos[0]-1, self.__player_pos[1])).melee_dmg
+            if self.__player.health == 0:
+                return "loss"
+        if type(self.see_cords((self.__player_pos[0], self.__player_pos[1]+1))) == Ogre:
+            self.__player.health = self.__player.health - self.see_cords((self.__player_pos[0], self.__player_pos[1]+1)).melee_dmg
+            if self.__player.health == 0:
+                return "loss"
+        if type(self.see_cords((self.__player_pos[0], self.__player_pos[1]-1))) == Ogre:
+            self.__player.health = self.__player.health - self.see_cords((self.__player_pos[0], self.__player_pos[1]-1)).melee_dmg
+            if self.__player.health == 0:
+                return "loss"
+
     def see_cords(self, cords):
         """Method to check what is in the inputed cords"""
         if self.check_cords(cords):
@@ -346,11 +366,6 @@ class Room():
 
 
 
-
-before_turn_cords = [1, 2]
-
-for i in range(len(before_turn_cords)):
-    print(i)
 """
 p = Player(100, 20, "🤠")
 r = Room("up", p)

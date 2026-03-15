@@ -26,6 +26,7 @@ This project uses the following libraries and assets.
 | Library / Asset | License Type   | Usage   |
 | :- | :- | :- |
 | [Keyboard](https://pypi.org/project/keyboard/) | MIT | event detection |
+
 ---
 
 ## Tutorials, Documentation, and Code Referenced
