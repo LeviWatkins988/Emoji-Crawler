@@ -49,7 +49,9 @@ class Entity():
 class Player(Entity):
     def __init__(self, health, melee_dmg, emoji):
         super().__init__(health, melee_dmg, emoji)
-    """@property
+    """
+    extra stat in case I want to expand program
+    @property
     def mana(self):
         return self.__mana
     @mana.setter
@@ -82,6 +84,16 @@ class Room():
         self.__room = self.make_room()
         
         
+    #player
+    @property
+    def player(self):
+        return self.__player
+    @player.setter
+    def player(self, other):
+        if type(other) == Player:
+            self.__player = other
+        else:
+            print("assignment has to be player type")
 
     #Player Pos
     @property
@@ -174,7 +186,6 @@ class Room():
                     print(self.__end_display, end="")
             print("")
         print(f"Your health is: {self.__player.health}")
-        #print(f"Your mana is: {player.}")
 
     def create_ogre_cords(self, number, distance):
         list_of_cords = []
